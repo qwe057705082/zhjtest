@@ -137,8 +137,8 @@ cc.Class({
         for (var k in cardArr) {
             var box = cardArr[k].getBoundingBox();   //获取card覆盖坐标范围
             var max = box.x + box.width / 2
-            var min = max - 32
-            var news = touch - 1550 / 2 + 32
+            var min = max - 34
+            var news = touch - 1550 / 2 + 34
             if (min < news && news < max) {      //判断触摸的点，是否在当前牌的范围内
                 // console.log('最小min:', min, '最大max：', max, '对比news：', news)
                 cardArr[k].isChiose = true;
