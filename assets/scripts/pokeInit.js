@@ -52,7 +52,6 @@ cc.Class({
     },
     touchend: function (event) {
         cc.log("Touch touchend");
-        console.log(this.idx)
         this.game.cardArr[this.idx].isChiose = true;
         this.setMaskShowing(true)
         this.touchCancel();
@@ -88,7 +87,6 @@ cc.Class({
                 if (this.game.cardArr[k].status === 'down') {
                     let obj = new Object();
                     obj.index = k;
-                    console.log("我选中牌--------", tp.pokers[k].level)
                     tp.playCardData.push(obj)
                     this.select(k)
 

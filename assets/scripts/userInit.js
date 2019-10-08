@@ -133,7 +133,7 @@ cc.Class({
         //设定本尊的位置
         if (n == "me") {
             this.node.setPosition(0, -350)
-            this.scoreNode.setPosition(200, -27)
+            this.scoreNode.setPosition(180, -27)
             this.priceNode.setPosition(320, -27)
             this.userNameNode.setPosition(-350, -27)
             this.seatNoNode.setPosition(-500, -27)
@@ -148,6 +148,7 @@ cc.Class({
         if (n == "right") {
             this.node.setPosition(600, 0)
             this.numNode.setPosition(-140, 29)
+            this.scoreNode.setPosition(-140, -40)
             this.seatNoNode.setPosition(116, 29)
         }
 

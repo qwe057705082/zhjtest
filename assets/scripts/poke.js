@@ -28,8 +28,8 @@ cc.Class({
         this.centerArr = [];
         this.localUserInfo = [];
         this.pokeNumber = 41;
-        let socket = new WebSocket("ws://sanfupai.free.idcfengye.com/ws");
-        // let socket = new WebSocket("ws://47.106.207.157:1024/ws");
+        // let socket = new WebSocket("ws://sanfupai.free.idcfengye.com/ws");
+        let socket = new WebSocket("ws://47.106.207.157:1024/ws");
         window.socket = socket;
         //连接打开
         socket.onopen = function (event) {
@@ -73,7 +73,7 @@ cc.Class({
                 base.setActive(self.setRoomNode, false)
                 base.setActive(self.chooseRoomNode, false)
             }
-            //104
+            //104出牌
             if (data.eventCode == 104) {
                 if (data.errorCode == 1) {
                     console.log("不符合规则-------")
@@ -119,7 +119,7 @@ cc.Class({
                 let inTurnData = {}
                 inTurnData.playerId = data.data.nextPlayerId
                 self.inTurn(inTurnData)
-                // self.updateNumberCard(data.data)
+                self.updateNumberCard(data.data)
             }
             if (data.eventCode == 205) {
                 tp.status = false
@@ -158,7 +158,7 @@ cc.Class({
     //分数更新
     updateScore(data) {
         for (let i = 0; i < data.length; i++) {
-            let node=this.getUserByPlayerId(data[i].playerId)
+            let node = this.getUserByPlayerId(data[i].playerId)
             node.getComponent(cc.Component).updateScore(data[i].score)
 
         }
@@ -182,13 +182,9 @@ cc.Class({
     },
     //更新牌数
     updateNumberCard(data) {
-        for (let j = 0; j < this.userInfoNode.children.length; j++) {
-            let node = this.userInfoNode.children[j]
-            let playerId = node.getComponent(cc.Component).playerId;
-            if (data.playerId == playerId) {
-                this.pokeNumber -= data.pokers.length
-                node.getComponent(cc.Component).updateData(this.pokeNumber)
-            }
+        let node = this.getUserByPlayerId(data.playerId)
+        if (node) {
+            node.getComponent(cc.Component).updateData(data.playerPokersNum)
         }
     },
     //判断鬼变成啥数据
@@ -238,10 +234,11 @@ cc.Class({
     },
     //轮到哪位玩家操作
     inTurn(data) {
+        this.cancelCount(data);
         if (tp.info.playerId == data.playerId) {
             base.setActive(this.countNode, true)
             this.changeButton(true, true, true)
-            this.cancelCount();
+           
         } else {
             base.setActive(this.countNode, false)
             this.changeButton(false, false, false)
@@ -254,11 +251,18 @@ cc.Class({
         }
     },
     //当自己操作时，别人的1应该取消
-    cancelCount() {
+    cancelCount(data) {
         let players = tp.info.players;
         for (let i = 0; i < players.length; i++) {
-            if (players[i].playerId != tp.info.playerId) {
-                let node = this.userInfoNode.children[i]
+            let node = this.userInfoNode.children[i]
+            if (players[i].playerId == data.playerId) {
+                if(players[i].playerId==tp.info.playerId){
+                    node.getComponent(cc.Component).updateCount(false)
+                }else{
+                    node.getComponent(cc.Component).updateCount(true)
+                }
+               
+            }else{
                 node.getComponent(cc.Component).updateCount(false)
             }
         }
