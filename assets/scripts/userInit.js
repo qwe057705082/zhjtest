@@ -98,16 +98,38 @@ cc.Class({
 
     },
     updateScore(data) {
-        this.score = '分:'+data;
+        this.score = '分:' + data;
     },
     bindNode() {
+        this.scriptNode = cc.find("Canvas/script")
         this.priceNode = cc.find('price', this.node)
         this.userNameNode = cc.find('name', this.node)
         this.numNode = cc.find('num', this.node)
         this.seatNoNode = cc.find("seatNo", this.node)
         this.countNode = cc.find("count", this.node)
         this.scoreNode = cc.find('score', this.node)
+        this.bonusPokersNode = cc.find('bonusPokers', this.node)
     },
+    showBonus(data) {
+        let newData = {};
+        if (data) {
+            for (let i = 0; i < data.length; i++) {
+                newData.level = data[i].level
+                newData.type = data[i].type
+                newData.list = false;
+                let node = this.scriptNode.getComponent(cc.Component).pokeNode(newData)
+                node.parent = this.bonusPokersNode;
+                node.x = 0;
+                node.y = 0;
+                node.scaleX = 0.35;
+                node.scaleY = 0.35;
+            }
+        } else {
+            console.log("数据为空")
+        }
+
+    },
+
     setCountDown(time, cb) {
         let self = this;
         window.clearInterval()  // 去除定时器
@@ -138,7 +160,7 @@ cc.Class({
             this.userNameNode.setPosition(-350, -27)
             this.seatNoNode.setPosition(-500, -27)
             this.numNode.setPosition(500, -25)
-
+            this.bonusPokersNode.setPosition(0, 200)
             this.setSize(this.userNameNode)
             this.setSize(this.seatNoNode)
             this.setSize(this.priceNode)
@@ -150,9 +172,17 @@ cc.Class({
             this.numNode.setPosition(-140, 29)
             this.scoreNode.setPosition(-140, -40)
             this.seatNoNode.setPosition(116, 29)
+            this.bonusPokersNode.setAnchorPoint(1, 0.5)
+            this.bonusPokersNode.setPosition(-200, 0)
+        }
+        if (n == "left") {
+            this.bonusPokersNode.setPosition(200, 0)
+            this.bonusPokersNode.setAnchorPoint(0, 0.5)
         }
 
-
+    },
+    reMoveBonus() {
+        this.bonusPokersNode.removeAllChildren(true)
     },
     //setSize
     setSize(node) {

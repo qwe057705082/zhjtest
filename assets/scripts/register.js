@@ -1,4 +1,4 @@
-let base = require('../resource/base/base')
+
 
 cc.Class({
     extends: cc.Component,
@@ -8,24 +8,48 @@ cc.Class({
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {},
+    onLoad() {
+
+        // console.log("base", base)
+    },
+    initData() {
+        this.username = null;
+        this.password = null;
+    },
     clickEvent() {
-        console.log("设置昵称")
-        let inputNode = cc.find("Canvas/register/input")
-        let str = inputNode.getComponent(cc.EditBox).string;
-        window.socket.send(JSON.stringify({
-            "eventCode": 101,
-            "nickName": str,
-        }));
+        this.initData();
+        this.bindNode();
+        console.log("设置昵称");
+        this.username = this.getEditBox(this.usernameNode)
+        this.password = this.getEditBox(this.passwordNode)
+        this.sendOne();
+    },
+    sendOne() {
+        if (this.username && this.password) {
+            window.socket.send(JSON.stringify({
+                "eventCode": 101,
+                "account": this.username,
+                "password": this.password,
+            }));
+        } else {
+            console.log("登录数据异常--可能为空")
+        }
+
+    },
+    getEditBox(node) {
+        let result = node.getComponent(cc.EditBox).string
+        return result
     },
     init() {
-        this.bindNode();
+
         base.setActive(this.setRoomNode, false)
         base.setActive(this.getRoomNode, false)
     },
     bindNode() {
-        this.setRoomNode = base.find('Canvas/setRoom')
-        this.getRoomNode = base.find('Canvas/getRoom')
+        this.setRoomNode = cc.find('Canvas/setRoom')
+        this.getRoomNode = cc.find('Canvas/getRoom')
+        this.usernameNode = cc.find("Canvas/register/username")
+        this.passwordNode = cc.find("Canvas/register/password")
     },
     bindEvent() {
 

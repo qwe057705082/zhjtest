@@ -28,35 +28,30 @@ cc.Class({
         this.centerArr = [];
         this.localUserInfo = [];
         this.pokeNumber = 41;
-        // let socket = new WebSocket("ws://sanfupai.free.idcfengye.com/ws");
-        let socket = new WebSocket("ws://47.106.207.157:1024/ws");
-        window.socket = socket;
-        //连接打开
-        socket.onopen = function (event) {
+        this.socketConnect();
+
+        window.socket.onopen = function (event) {
             console.log("联接开始！")
             base.setActive(self.registerNode, true)
 
         }
 
 
-        //发送206
-        console.log("socket", socket)
-        window.IO = socket;
+
 
         //收到消息
-        socket.onmessage = function (event) {
+        window.socket.onmessage = function (event) {
             let data = JSON.parse(event.data)
             console.log("成功获取的数据：", data.eventCode, data)
             //101
             if (data.eventCode == 101) {
                 tp.info.nickName = data.data.nickName;
                 tp.info.playerId = data.data.playerId;
-                //显示用户信息
+                // //显示用户信息
                 self.showInfo()
                 base.setActive(self.registerNode, false)
                 base.setActive(self.getRoomNode, true)
                 base.setActive(self.setRoomNode, true)
-
             }
             //获取房间号102
             if (data.eventCode == 102) {
@@ -154,6 +149,38 @@ cc.Class({
         this.bindNode();
         this.bindEvent();
         this.init();
+        this.showOrHide();
+
+        //test
+        // tp.info.seatNo = 1;
+        // tp.info.playerId = 1;
+        // tp.info.players = tp.testplayers;
+        // this.playerInit(tp.testplayers);
+        // this.setBonus(tp.testplayers)
+
+
+    },
+    socketConnect() {
+        window.socketInit();
+    },
+    showOrHide() {
+        let self = this;
+        cc.game.on(cc.game.EVENT_HIDE, function () {
+            window.s.close();
+        });
+
+        cc.game.on(cc.game.EVENT_SHOW, function () {
+            // socket.connect();
+            self.socketConnect();
+            self.postNode.getComponent(cc.Component).sendOne();
+        });
+    },
+    //展示奖
+    setBonus(data) {
+        for (let i = 0; i < data.length; i++) {
+            let node = this.getUserByPlayerId(data[i].playerId)
+            node.getComponent(cc.Component).showBonus(data[i].bonusPokers)
+        }
     },
     //分数更新
     updateScore(data) {
@@ -238,7 +265,7 @@ cc.Class({
         if (tp.info.playerId == data.playerId) {
             base.setActive(this.countNode, true)
             this.changeButton(true, true, true)
-           
+
         } else {
             base.setActive(this.countNode, false)
             this.changeButton(false, false, false)
@@ -256,13 +283,13 @@ cc.Class({
         for (let i = 0; i < players.length; i++) {
             let node = this.userInfoNode.children[i]
             if (players[i].playerId == data.playerId) {
-                if(players[i].playerId==tp.info.playerId){
+                if (players[i].playerId == tp.info.playerId) {
                     node.getComponent(cc.Component).updateCount(false)
-                }else{
+                } else {
                     node.getComponent(cc.Component).updateCount(true)
                 }
-               
-            }else{
+
+            } else {
                 node.getComponent(cc.Component).updateCount(false)
             }
         }
@@ -423,17 +450,22 @@ cc.Class({
         }
     },
     playerInit(data) {
-        for (let i = 0; i < data.length; i++) {
-            //判断节点是否存在
-            if (this.userInfoNode.children[i]) {
-                continue
-            } else {
-                let node = this.playerNode();
-                node.parent = this.userInfoNode;
-                node.setPosition(0, 0)
-                node.getComponent(cc.Component).init(data[i])
+        if (data) {
+            for (let i = 0; i < data.length; i++) {
+                //判断节点是否存在
+                if (this.userInfoNode.children[i]) {
+                    continue
+                } else {
+                    let node = this.playerNode();
+                    node.parent = this.userInfoNode;
+                    node.setPosition(0, 0)
+                    node.getComponent(cc.Component).init(data[i])
+                }
             }
+        } else {
+            console.log("数据异常")
         }
+
     },
     //玩家
     playerNode() {
