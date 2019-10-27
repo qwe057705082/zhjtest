@@ -25,11 +25,16 @@ cc.Class({
         this.sendOne();
     },
     sendOne() {
+        let self = this;
+        console.log('this.username',this.username)
+        console.log('this.password',this.password)
         if (this.username && this.password) {
+            console.log(2222)
+            console.log('window.socket',window.socket)
             window.socket.send(JSON.stringify({
                 "eventCode": 101,
-                "account": this.username,
-                "password": this.password,
+                "account": self.username,
+                "password": self.password,
             }));
         } else {
             console.log("登录数据异常--可能为空")

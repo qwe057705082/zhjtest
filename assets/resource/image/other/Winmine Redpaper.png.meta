@@ -1,0 +1,31 @@
+{
+  "ver": "2.2.0",
+  "uuid": "101109e2-3d22-4323-ac0c-b9b7db76b517",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "subMetas": {
+    "Winmine Redpaper": {
+      "ver": "1.0.3",
+      "uuid": "0c83c19b-d69a-4bee-8f8a-d33a94db28ad",
+      "rawTextureUuid": "101109e2-3d22-4323-ac0c-b9b7db76b517",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": -1,
+      "trimX": 0,
+      "trimY": 2,
+      "width": 1763,
+      "height": 1690,
+      "rawWidth": 1763,
+      "rawHeight": 1692,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

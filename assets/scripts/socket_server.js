@@ -1,13 +1,12 @@
 let socketInit = function socketInit() {
     let Socket = require('../scripts/socket/socketInit')
     let data = {
-        // url:'ws://10.0.0.162:8888',
-        // url:'ws://socketserver.morethantech.cn:80',
-        // url: util.getBaseInfo('sockerServerUrl'),
-        url: "ws://sanfupai.free.idcfengye.com/ws",
+        // url:'ws://47.106.207.157:1024/ws',//阿里云
+
+        url: "ws://sanfupai.free.idcfengye.com/ws",//域名
     }
     let socket = new Socket(data);
-    window.s=socket;
+    window.socket=socket;
     console.log("我这里呢")
     socket.connect();
 }

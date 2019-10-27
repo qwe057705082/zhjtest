@@ -1,4 +1,5 @@
 function Socket(data) {
+    console.log(data)
     this.url = data.url;
     this.io = null;
     this.account = data.account;

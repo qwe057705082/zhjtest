@@ -49,38 +49,45 @@ cc.Class({
                 base.setLabelStr(this.scoreNode, value)
             }
         },
+        ready: {
+            get: function () {
+
+            },
+            set: function (value) {
+                base.setActive(this.readyNode, value)
+            }
+        }
 
     },
     // LIFE-CYCLE CALLBACKS:
     onLoad() {
-        let self = this;
-
-        let index = 1;
-        this.newSeatNo = 0;
-        this.playerId = 0;
-
 
     },
-    init(data) {
+    init(data, i) {
+        this.index = i + 1
+        this.nickName = data.nickName
         this.bindNode();
         //玩家名字
         this.updateName(data.nickName)
-        //玩家座位号
-        this.updateSeatNo(data.seatNo)
+        // //玩家座位号
+        // this.updateSeatNo(data.seatNo)
         //玩家id
         this.updatePlayerId(data.playerId)
         let whereToGo = this.getDirection(data)
         //位置
         this.initPosition(whereToGo)
+        this.setAvator()
+        this.bindEvent()
     },
+   
     updateData(numberCard) {
-        this.numberCard = '牌数:' + numberCard;
+        this.numberCard = numberCard;
     },
     updateName(userName) {
         this.userName = userName;
     },
     updatePrice(data) {
-        this.price = '奖：' + data;
+        this.price = data;
 
     },
     updateSeatNo(data) {
@@ -95,20 +102,66 @@ cc.Class({
     },
     updateCount(state) {
         base.setActive(this.countNode, state)
-
     },
     updateScore(data) {
         this.score = '分:' + data;
     },
+    updateReady(result) {
+        this.ready = result
+        if (!tp.status) {
+            if (tp.info.playerId == this.playerId && result) {
+                base.setActive(this.scriptNode.redyBtnNode, false)
+            }
+            if (tp.info.playerId == this.playerId && result == false) {
+                base.setActive(this.scriptNode.redyBtnNode, true)
+            }
+        }
+
+    },
     bindNode() {
-        this.scriptNode = cc.find("Canvas/script")
+        this.scriptNode = cc.find("Canvas/script").getComponent(cc.Component)
         this.priceNode = cc.find('price', this.node)
         this.userNameNode = cc.find('name', this.node)
         this.numNode = cc.find('num', this.node)
-        this.seatNoNode = cc.find("seatNo", this.node)
         this.countNode = cc.find("count", this.node)
         this.scoreNode = cc.find('score', this.node)
-        this.bonusPokersNode = cc.find('bonusPokers', this.node)
+        this.bonusPokersNode = cc.find('price/bonusPokers', this.node)
+        this.readyNode = cc.find('ready', this.node)
+        this.showPokeNode = cc.find('showPoke', this.node)
+        this.bgNode = cc.find('bg', this.node)
+        this.maskNode = cc.find('mask', this.node)
+        this.avatorNode = cc.find('mask/avator', this.node)
+        this.priceBgNode = cc.find('price/priceBg', this.node)
+    },
+    bindEvent() {
+        let self = this;
+        this.priceBgNode.on("mouseenter", function () {
+            self.bonusPokersNode.active=true
+        })
+        this.priceBgNode.on("mouseleave", function () {
+            self.bonusPokersNode.active=false
+        })
+    },
+    setAvator() {
+        let str = '';
+        let atlas = '';
+        if (this.nickName == 'wly') {
+            str = 'WJTX-MSN-0'
+            atlas = this.scriptNode.avator1
+        } else {
+            str = 'WJTX-MAN-0'
+            atlas = this.scriptNode.avator2
+        }
+        this.avatorNode.getComponent(cc.Sprite).spriteFrame = atlas.getSpriteFrame(str + this.index)
+
+    },
+    ubPokers(node) {
+      
+        node.parent = this.bonusPokersNode
+        this.bonusPokersNode.active=false
+    },
+    removeUbpokers(){
+        this.bonusPokersNode.removeAllChildren()
     },
     showBonus(data) {
         let newData = {};
@@ -117,7 +170,7 @@ cc.Class({
                 newData.level = data[i].level
                 newData.type = data[i].type
                 newData.list = false;
-                let node = this.scriptNode.getComponent(cc.Component).pokeNode(newData)
+                let node = this.scriptNode.pokeNode(newData)
                 node.parent = this.bonusPokersNode;
                 node.x = 0;
                 node.y = 0;
@@ -129,7 +182,12 @@ cc.Class({
         }
 
     },
-
+    setParent(node) {
+        node.parent = this.showPokeNode
+    },
+    removeShowPoke() {
+        this.showPokeNode.removeAllChildren(true)
+    },
     setCountDown(time, cb) {
         let self = this;
         window.clearInterval()  // 去除定时器
@@ -146,51 +204,59 @@ cc.Class({
     //me ,left,right,up
     initPosition(n) {
         switch (n) {
-            case "me": ; break;
-            case "left": this.node.x = -600; break;
-            case "right": ; break;
-            case "up": this.node.y = 250; break;
+            case "me": this.node.setPosition(0, -400); break;
+            case "left": this.node.setPosition(-700, 0); break;
+            case "right": this.node.setPosition(700, 0); break;
+            case "up": this.node.setPosition(0, 250); break;
             default: console.log("传入的参数不对")
         }
         //设定本尊的位置
         if (n == "me") {
-            this.node.setPosition(0, -350)
+            this.readyNode.setPosition(0, 250)
             this.scoreNode.setPosition(180, -27)
-            this.priceNode.setPosition(320, -27)
-            this.userNameNode.setPosition(-350, -27)
-            this.seatNoNode.setPosition(-500, -27)
+            this.priceNode.setPosition(-340, -28)
+            // this.priceNode.setScale(0.9,0.9)
+            this.userNameNode.setPosition(-340, 20)
             this.numNode.setPosition(500, -25)
-            this.bonusPokersNode.setPosition(0, 200)
-            this.setSize(this.userNameNode)
-            this.setSize(this.seatNoNode)
-            this.setSize(this.priceNode)
-            this.setSize(this.numNode)
+            this.bonusPokersNode.setPosition(200, 20)
+            this.showPokeNode.setPosition(0, 300)
+            this.setMeSize(this.userNameNode, 50)
+            this.setFontSize(this.priceNode, 25)
+            this.setMeSize(this.numNode, 50)
+            this.bgNode.setScale(0.9, 0.9)
+            this.bgNode.setPosition(-400, -10)
+            this.maskNode.setPosition(-485, -10)
+            this.bgNode.getComponent(cc.Sprite).spriteFrame = this.scriptNode.redAtlas.getSpriteFrame('User_02')
         }
         //右侧玩家的位置
         if (n == "right") {
-            this.node.setPosition(600, 0)
-            this.numNode.setPosition(-140, 29)
-            this.scoreNode.setPosition(-140, -40)
-            this.seatNoNode.setPosition(116, 29)
+            this.numNode.setPosition(-140, 80)
+            this.scoreNode.setPosition(-150, 20)
+            this.showPokeNode.setPosition(-400, 0)
             this.bonusPokersNode.setAnchorPoint(1, 0.5)
-            this.bonusPokersNode.setPosition(-200, 0)
+            this.bonusPokersNode.setPosition(-100, 0)
         }
         if (n == "left") {
-            this.bonusPokersNode.setPosition(200, 0)
-            this.bonusPokersNode.setAnchorPoint(0, 0.5)
+            this.showPokeNode.setPosition(400, 0)
+            // this.bonusPokersNode.setPosition(250, 0)
         }
 
     },
     reMoveBonus() {
         this.bonusPokersNode.removeAllChildren(true)
     },
-    //setSize
-    setSize(node) {
+    setFontSize(node, size) {
         if (node) {
-            node.getComponent(cc.Label).fontSize = 50;
-            node.getComponent(cc.Label).lineHeight = 50;
+            node.getComponent(cc.Label).fontSize = size;
         }
 
+    },
+    //setSize
+    setMeSize(node, size) {
+        if (node) {
+            node.getComponent(cc.Label).fontSize = size;
+            node.getComponent(cc.Label).lineHeight = size;
+        }
     },
     //根据座位号来获取所坐的位置
     getDirection(data) {
@@ -198,7 +264,6 @@ cc.Class({
         if (data.seatNo == tp.info.seatNo) {
             who = "me"
         } else {
-            console.log(data.seatNo, tp.info.seatNo)
             if (this.numBeealoon(tp.info.seatNo) == this.numBeealoon(data.seatNo)) {
                 who = "up"
             } else {

@@ -27,6 +27,7 @@ cc.Class({
 
     },
     init(data) {
+
         this.idx = data.idx;
         this.height = false;
         //过滤大小王
@@ -87,21 +88,20 @@ cc.Class({
                 if (this.game.cardArr[k].status === 'down') {
                     let obj = new Object();
                     obj.index = k;
+                    console.log("最终解释权", k)
                     tp.playCardData.push(obj)
                     this.select(k)
 
 
                 } else {
                     let index = k;
-                    let type = tp.pokers[k].type
                     for (let i = 0; i < tp.playCardData.length; i++) {
-                        if (tp.playCardData[i].index == index && tp.playCardData[i].type == type) {
+                        if (tp.playCardData[i].index == index) {
                             tp.playCardData.splice(i, 1)
+
                         }
                     }
-                    this.game.cardArr[k].status = 'down';
-                    this.game.cardArr[k].y -= 19;
-                    this.game.cardArr[k].getComponent(cc.Component).setMaskShowing(false);  //显示阴影遮罩
+                    this.cancelSelect(k)
                 }
             }
         }
@@ -131,22 +131,19 @@ cc.Class({
     * 当前触摸的点 是否在牌的区域
     * */
     _getCardForTouch: function (touch, cardArr) {
-        cardArr.reverse();      //to 1
+         touch = touch - 1550 / 2-tp.width/5
         for (var k in cardArr) {
             var box = cardArr[k].getBoundingBox();   //获取card覆盖坐标范围
-            var max = box.x + box.width / 2
-            var min = max - 34
-            var news = touch - 1550 / 2 + 34
-            if (min < news && news < max) {      //判断触摸的点，是否在当前牌的范围内
-                // console.log('最小min:', min, '最大max：', max, '对比news：', news)
-                cardArr[k].isChiose = true;
+            var max = box.x +box.width/2
+            var min = max - tp.width
+            if (min < touch && touch < max) {      //判断触摸的点，是否在当前牌的范围内
+                // console.log('最小min:', min, '最大max：', max, 'touch', touch)
+                cardArr[k].isChiose = true;   
                 cardArr[k].getComponent("pokeInit").setMaskShowing(true);  //显示阴影遮罩
                 cc.log("CCC touch select: " + k);
-                cardArr.reverse();
                 return cardArr[k];
             }
         }
-        cardArr.reverse();
     },
     initBg(color, num) {
         let bg2 = '';
@@ -234,6 +231,7 @@ cc.Class({
     cancelSelect(k) {
         this.game.cardArr[k].status = 'down';
         this.game.cardArr[k].y -= 19;
+        this.game.cardArr[k].getComponent(cc.Component).setMaskShowing(false);  //显示阴影遮罩
     },
     start() {
 
