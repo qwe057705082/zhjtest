@@ -9,16 +9,24 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
-
+        this.initData();
+        this.bindNode();
+        this.bindEvent()
+        console.log("222")
         // console.log("base", base)
     },
     initData() {
         this.username = null;
         this.password = null;
     },
+    bindEvent(){
+        let self=this;
+        this.node.on('touchend',function(){
+            self.clickEvent()
+        })
+
+    },
     clickEvent() {
-        this.initData();
-        this.bindNode();
         console.log("设置昵称");
         this.username = this.getEditBox(this.usernameNode)
         this.password = this.getEditBox(this.passwordNode)
@@ -29,8 +37,6 @@ cc.Class({
         console.log('this.username',this.username)
         console.log('this.password',this.password)
         if (this.username && this.password) {
-            console.log(2222)
-            console.log('window.socket',window.socket)
             window.socket.send(JSON.stringify({
                 "eventCode": 101,
                 "account": self.username,
@@ -56,11 +62,8 @@ cc.Class({
         this.usernameNode = cc.find("Canvas/register/username")
         this.passwordNode = cc.find("Canvas/register/password")
     },
-    bindEvent() {
-
-    },
     start() {
-
+      
     },
 
     // update (dt) {},

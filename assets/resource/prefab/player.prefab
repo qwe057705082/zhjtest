@@ -1127,7 +1127,7 @@
       "__id__": 1
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_level": 2,
     "_components": [
       {
@@ -1157,8 +1157,8 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": -79,
+      "x": -9,
+      "y": -144,
       "z": 0
     },
     "_scale": {
@@ -1521,7 +1521,7 @@
     "_position": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -131,
+      "y": -132,
       "z": 0
     },
     "_scale": {

@@ -79,7 +79,7 @@ cc.Class({
         this.setAvator()
         this.bindEvent()
     },
-   
+
     updateData(numberCard) {
         this.numberCard = numberCard;
     },
@@ -108,14 +108,14 @@ cc.Class({
     },
     updateReady(result) {
         this.ready = result
-        if (!tp.status) {
-            if (tp.info.playerId == this.playerId && result) {
-                base.setActive(this.scriptNode.redyBtnNode, false)
-            }
-            if (tp.info.playerId == this.playerId && result == false) {
-                base.setActive(this.scriptNode.redyBtnNode, true)
-            }
-        }
+        // if (!tp.status) {
+        //     if (tp.info.playerId == this.playerId && result) {
+        //         base.setActive(this.scriptNode.redyBtnNode, false)
+        //     }
+        //     if (tp.info.playerId == this.playerId && result == false) {
+        //         base.setActive(this.scriptNode.redyBtnNode, true)
+        //     }
+        // }
 
     },
     bindNode() {
@@ -135,11 +135,14 @@ cc.Class({
     },
     bindEvent() {
         let self = this;
-        this.priceBgNode.on("mouseenter", function () {
-            self.bonusPokersNode.active=true
+        this.priceBgNode.on("touchmove", function () {
+            self.bonusPokersNode.active = true
         })
-        this.priceBgNode.on("mouseleave", function () {
-            self.bonusPokersNode.active=false
+        this.priceBgNode.on("touchend", function () {
+            self.bonusPokersNode.active = self.bonusPokersNode.active ? false : true
+        })
+        this.priceBgNode.on("touchcancel", function () {
+            self.bonusPokersNode.active = false
         })
     },
     setAvator() {
@@ -156,11 +159,11 @@ cc.Class({
 
     },
     ubPokers(node) {
-      
+
         node.parent = this.bonusPokersNode
-        this.bonusPokersNode.active=false
+        this.bonusPokersNode.active = false
     },
-    removeUbpokers(){
+    removeUbpokers() {
         this.bonusPokersNode.removeAllChildren()
     },
     showBonus(data) {
@@ -212,6 +215,7 @@ cc.Class({
         }
         //设定本尊的位置
         if (n == "me") {
+            this.countNode.setPosition(0,300)
             this.readyNode.setPosition(0, 250)
             this.scoreNode.setPosition(180, -27)
             this.priceNode.setPosition(-340, -28)
@@ -230,6 +234,7 @@ cc.Class({
         }
         //右侧玩家的位置
         if (n == "right") {
+            this.countNode.setPosition(-400,0)
             this.numNode.setPosition(-140, 80)
             this.scoreNode.setPosition(-150, 20)
             this.showPokeNode.setPosition(-400, 0)
@@ -237,10 +242,18 @@ cc.Class({
             this.bonusPokersNode.setPosition(-100, 0)
         }
         if (n == "left") {
+            this.countNode.setPosition(400,0)
             this.showPokeNode.setPosition(400, 0)
             // this.bonusPokersNode.setPosition(250, 0)
         }
-
+        if (n == 'up') {
+            this.priceNode.setPosition(140, -12)
+        }
+        this.setPs()
+    },
+    setPs() {
+        return { x: this.node.x + this.scoreNode.x, y: this.node.y + this.scoreNode.y+30 }
+        this.pricePs = this.scoreNode.getPosition()
     },
     reMoveBonus() {
         this.bonusPokersNode.removeAllChildren(true)

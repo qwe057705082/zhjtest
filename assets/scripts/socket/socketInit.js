@@ -11,19 +11,21 @@ Socket.prototype = {
 
         this.io = new WebSocket(this.url);
         window.socket = this.io;
-        this.io.onopen = function (e) {
-            console.log("socket connected")
-        }
+        // this.io.onopen = function (e) {
+        //     console.log("socket connected")
+        // }
+        cc.find("Canvas/script").getComponent(cc.Component).onGameEvent()
+        
         // this.io.onclose = function (err) {
         //     console.log("---onclose----");
         // };
     },
     close: function () {
         console.log("aaaaa")
-        this.io.onclose = function (err) {
+        window.socket.onclose = function (err) {
             console.log("socket关闭后收到的onclose事件");
         };
-        this.io.close();
+        window.socket.close();
         this.io = null;
     }
 }

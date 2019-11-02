@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "c7b2bf90-1993-4ca4-8c00-bdd3870bb7c5",
+  "atlasJson": "{\"width\":741,\"imagePath\":\"SFX_B30_Settlement-V03_tex.png\",\"height\":569,\"name\":\"SFX_B30_Settlement-V03\",\"SubTexture\":[{\"width\":204,\"y\":381,\"height\":90,\"name\":\"SFX_B30_Settlement-V03/G\",\"x\":297},{\"width\":741,\"y\":0,\"height\":381,\"name\":\"SFX_B30_Settlement-V03/D\",\"x\":0},{\"width\":159,\"y\":381,\"height\":16,\"name\":\"SFX_B30_Settlement-V03/DG\",\"x\":501},{\"width\":539,\"y\":530,\"height\":39,\"name\":\"SFX_B30_Settlement-V03/玩的开心，赢得漂亮!\",\"x\":0},{\"width\":49,\"y\":397,\"height\":49,\"name\":\"SFX_B30_Settlement-V03/金币\",\"x\":501},{\"width\":38,\"y\":471,\"height\":36,\"name\":\"SFX_B30_Settlement-V03/钻石\",\"x\":297},{\"width\":23,\"y\":471,\"height\":23,\"name\":\"SFX_B30_Settlement-V03/星星\",\"x\":362},{\"width\":27,\"y\":471,\"height\":27,\"name\":\"SFX_B30_Settlement-V03/星星_2\",\"x\":335},{\"width\":37,\"y\":446,\"height\":37,\"name\":\"SFX_B30_Settlement-V03/星星_3\",\"x\":501},{\"width\":297,\"y\":381,\"height\":149,\"name\":\"SFX_B30_Settlement-V03/结算\",\"x\":0}]}",
+  "texture": "f9f6be70-f7b9-404d-a9c3-aea768efa37f",
+  "subMetas": {}
+}

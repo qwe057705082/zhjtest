@@ -37,6 +37,11 @@ Base.prototype = {
             node.active = state;
         }
     },
+    setFont: function (node, value) {
+        if (node) {
+            node.getComponent(cc.Label).font = value
+        }
+    },
     /**
     * 设置带有cc.Label组件的节点的该组件的string值。
     * @augments

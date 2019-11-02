@@ -29,39 +29,86 @@ cc.Class({
         avator2: {
             default: null,
             type: cc.SpriteAtlas
-        }
+        },
+        Win: cc.Font,
+        Less: cc.Font,
+
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
-        let self = this;
         //自己数组
         this.cardArr = [];
         //中间显示数组
         this.centerArr = [];
         this.localUserInfo = [];
         this.pokeNumber = 41;
+        this.scoreInfos =
+            [
+                { playerId: 1, score: 0 },
+                { playerId: 2, score: 0 },
+                { playerId: 3, score: 0 },
+                { playerId: 4, score: 0 },
+            ];
+        this.whoScoreChange = null
+        // this.onGameEvent();
+        this.initNodePools();
+        this.bindNode();
+        this.bindEvent();
+        this.initNode();
         this.socketConnect();
+        this.showOrHide()
+        // tp.info.playerId = 1;
+        // let data = {};
+        // data.players = tp.testplayers
+        // tp.info.players = tp.testplayers
+        // this.connectPlayes(data)
+        // this.inTurn(1)
+        // this.showPoke(tp.pokers)
+        // this.updatePlay(tp.clientInfos)
+        // this.updateSmallBonus(tp.clientInfos)
+        // this.updateRoomScore(100)
+        // this.updateScore(tp.scores)
+        // this.cancelReadyUI()
+        //测试结算
+        // this.cancelShowPoke()
+        // this.scheduleOnce(()=>{
+        //     this.settletotal(tp.settle)
+        // },2)
+
+    },
+    onGameEvent() {
+        let self = this;
         if (window.socket) {
             window.socket.onopen = function (event) {
                 console.log("联接开始！")
-                base.setActive(self.registerNode, true)
+                // base.setActive(self.registerNode, true)
+                // self.postNode.getComponent(cc.Component).sendOne();
 
             }
+            window.socket.onclose = function (err) {
+                console.log("socket关闭后收到的onclose事件");
+            };
             //收到消息
             window.socket.onmessage = function (event) {
                 let data = JSON.parse(event.data)
                 console.log("成功获取的数据：", data.eventCode, data)
-                //101
+
+
                 if (data.eventCode == 101) {
-                    self.getInfoIDName(data.data)
-                    // //显示用户信息
-                    self.showInfo()
-                    base.setActive(self.chooseRoomNode, false)
-                    base.setActive(self.registerNode, false)
-                    base.setActive(self.getRoomNode, true)
-                    base.setActive(self.setRoomNode, true)
+                    if (data.errorCode == 0) {
+                        self.getInfoIDName(data.data)
+                        // //显示用户信息
+                        self.showInfo()
+                        base.setActive(self.chooseRoomNode, false)
+                        base.setActive(self.registerNode, false)
+                        base.setActive(self.getRoomNode, true)
+                        base.setActive(self.setRoomNode, true)
+                    } else {
+                        console.log("报错了")
+                    }
+
                 }
                 //获取房间号102
                 if (data.eventCode == 102) {
@@ -71,11 +118,14 @@ cc.Class({
                 }
                 //加入房间103
                 if (data.eventCode == 103) {
+                    self.userInfoNode.removeAllChildren(true)
                     self.connectPlayes(data.data);
-                    base.setActive(self.redyBtnNode, true)
+                    base.setActive(self.exitNode, true)
+
                     base.setActive(self.getRoomNode, false)
                     base.setActive(self.setRoomNode, false)
                     base.setActive(self.chooseRoomNode, false)
+
                 }
                 //104出牌
                 if (data.eventCode == 104) {
@@ -93,22 +143,37 @@ cc.Class({
                         console.log("不能过牌")
                     }
                 }
+                if (data.eventCode == 106) {
+                    if (data.errorCode == 0) {
+                        if (data.data) {
+                            self.exitRoom(data.data.exitPlayer.playerId)
+                        } else {
+                            self.meExit()
+                        }
+
+                        // base.setActive(self.exitNode, false)
+                    }
+
+                }
+                if (data.eventCode == 107) {
+                    if (data.errorCode == 0) {
+                    }
+                }
                 //创建房间号108
                 if (data.eventCode == 108) {
-                    tp.info.roomId = data.data.roomId;
+                    tp.roomId = data.data.roomId;
                     self.setRoom()
                     base.setActive(self.chooseRoomNode, false)
-                    base.setActive(self.getRoomNode, false)
+                    base.setActive(self.getRoomNode, false),
+                        base.setActive(self.exitNode, true)
                     // console.log("成功创建房间号", data)
                 }
                 //有鬼的都要从这里走一下
                 if (data.eventCode == 109) {
                     let placeInfo = data.data.placeInfo
                     self.changePoke(placeInfo)
-
                 }
                 if (data.eventCode == 110) {
-
                     self.showPoke(data.data.pokers, true)
                 }
                 //112
@@ -118,6 +183,12 @@ cc.Class({
                 //准备
                 if (data.eventCode == 113) {
                     if (data.errorCode == 0) {
+                        if (data.data.playerId == tp.info.playerId) {
+                            base.setActive(self.redyBtnNode, false)
+                            self.cancelShowPoke();
+                            base.setActive(self.allSttleNode, false)
+
+                        }
                         let node = self.getUserByPlayerId(data.data.playerId)
                         node.getComponent(cc.Component).updateReady(true)
                     } else {
@@ -139,8 +210,13 @@ cc.Class({
                     self.inTurn(data.data.nextPlayerId)
                     self.updateNumberCard(data.data)
                 }
+                //桌面分数变动
+                if (data.eventCode == 204) {
+                    self.updateRoomScore(data.data.roomScore)
+                }
                 if (data.eventCode == 205) {
                     tp.status = false
+                    base.setActive(self.redyBtnNode, true)
                     self.settletotal(data.data.playerList);
                     self.changeButton(false, false, false)
                 }
@@ -150,15 +226,17 @@ cc.Class({
                         return
                     }
                     //属于206点的初始化
+
+                    base.setActive(self.redyBtnNode, false)
                     tp.clientInfos = data.clientInfos;
                     self.updatePlay(data.data.clientInfos)
                     self.scheduleOnce(() => {
                         self.inTurn(data.data.nextPlayerId)
                         self.cancelShowPoke()
                     }, 4)
-
                     self.statrInit(data.data)
                     self.cancelReadyUI()
+                    self.updateSmallBonus(data.data.clientInfos)
                 }
                 //显示队友的牌
                 if (data.eventCode == 208) {
@@ -167,37 +245,33 @@ cc.Class({
             }
 
         }
-
-        this.initNodePools();
-        this.bindNode();
-        this.bindEvent();
-        this.initNode();
-        // tp.info.playerId = 1;
-        // let data = {};
-        // data.players = tp.testplayers
-        // tp.info.players = tp.testplayers
-        // this.connectPlayes(data)
-        // this.showPoke(tp.pokers)
-        // this.updatePlay(tp.clientInfos)
-        // this.cancelReadyUI()
     },
-
-    //更新bonus牌数
-    updateBonusPokers(data, playerId) {
-        for (let i = 0; i < data.length; i++) {
-            let newPokeData = { idx: i, level: data[i].level, type: data[i].type, list: false };
-            let node = this.pokeNode(newPokeData);
-            let userInfoNode = this.getUserByPlayerId(playerId)
-            userInfoNode.getComponent(cc.Component).ubPokers(node)
+    updateRoomScore(result) {
+        base.setActive(this.roomScoreNode, true)
+        base.setLabelStr(this.roomScoreNode, '分:' + result)
+    },
+    meExit() {
+        tp.info.players = []
+        this.setRoomNode.getComponent(cc.Component).updateRoomId("");
+        this.getRoomNode.getComponent(cc.Component).clickEvent()
+        this.userInfoNode.removeAllChildren(true);
+        base.setActive(this.allSttleNode, false)
+        base.setActive(this.redyBtnNode, false)
+        base.setActive(this.getRoomNode, true)
+        base.setActive(this.setRoomNode, true)
+    },
+    //判断是否退出房间
+    exitRoom(playerId) {
+        if (playerId) {
+            if (playerId == tp.info.playerId) {
+                this.meExit()
+            } else {
+                let node = this.getUserByPlayerId(playerId)
+                this.playerPool.put(node)
+            }
         }
     },
-    cancelUbPokers() {
-        let players = tp.info.players
-        for (let i = 0; i < players.length; i++) {
-            let node = this.getUserByPlayerId(players[i].playerId)
-            node.getComponent(cc.Component).removeUbpokers()
-        }
-    },
+
     //取消准备的ui
     cancelReadyUI() {
         let players = tp.info.players
@@ -209,8 +283,10 @@ cc.Class({
     //206初始化
     statrInit(data) {
         tp.status = true
+
         //由于数据延时发射
         this.showPoke(data.pokers, true);
+
     },
     connectPlayes(data) {
         //全局的players
@@ -231,8 +307,10 @@ cc.Class({
     //重新进来状态的判断
     state(data) {
         this.connectPlayes(data);
+        base.setActive(this.registerNode, false)
         base.setActive(this.setRoomNode, false)
         base.setActive(this.getRoomNode, false)
+        base.setActive(this.exitNode, true)
         if (data.roomStatus == 'STARTING') {
             this.statrInit(data)
             this.inTurn(data.nextPlayerId)
@@ -240,6 +318,7 @@ cc.Class({
             //当前谁打牌
             let newArr = { playerId: data.lastPlayerId, pokers: data.lastPokers }
             this.centerShowPoke(newArr)
+            this.updateSmallBonus(data.players)
         }
         //判断是否准备
         this.judgeReady(data)
@@ -248,6 +327,7 @@ cc.Class({
     },
     //更新奖数
     updateBonus(data) {
+
         let playersInfo = data.players
         for (let i = 0; i < playersInfo.length; i++) {
             let node = this.getUserByPlayerId(playersInfo[i].playerId)
@@ -270,13 +350,12 @@ cc.Class({
     showOrHide() {
         let self = this;
         cc.game.on(cc.game.EVENT_HIDE, function () {
-            window.s.close();
+            window.socket.close();
         });
 
         cc.game.on(cc.game.EVENT_SHOW, function () {
-            // socket.connect();
             self.socketConnect();
-            self.postNode.getComponent(cc.Component).sendOne();
+
         });
     },
     //展示奖
@@ -289,21 +368,55 @@ cc.Class({
     //分数更新
     updateScore(data) {
         for (let i = 0; i < data.length; i++) {
-            let node = this.getUserByPlayerId(data[i].playerId)
-            node.getComponent(cc.Component).updateScore(data[i].score)
-
+            for (let j = 0; j < this.scoreInfos.length; j++) {
+                if (this.scoreInfos[j].playerId == data[i].playerId) {
+                    let changeScore = data[i].score - this.scoreInfos[j].score
+                    if (changeScore > 0) {
+                        this.whoScoreChange = data[i].playerId
+                    }
+                }
+            }
+        }
+        let callBack = cc.callFunc(() => {
+            this.scoreInfos = data
+            for (let i = 0; i < data.length; i++) {
+                let node = this.getUserByPlayerId(data[i].playerId)
+                node.getComponent(cc.Component).updateScore(data[i].score)
+            }
+            this.roomScoreNode.setPosition(0, 30)
+            this.roomScoreNode.active = false
+        })
+        let node = this.getUserByPlayerId(this.whoScoreChange)
+        let targetNodePs = node.getComponent(cc.Component).setPs()
+        if (this.roomScoreNode) {
+            this.roomScoreNode.runAction(
+                cc.sequence(
+                    cc.moveTo(1, targetNodePs),
+                    callBack
+                ))
         }
 
     },
     //结算
     settletotal(data) {
+        this.allSttleNode.active = true
+        this.allSttleContentNode.removeAllChildren(true)
         for (let i = 0; i < data.length; i++) {
             let node = this.getSettleNode();
             let nameNode = base.find("name", node)
             let winNumberNode = base.find("winNumber", node)
+            let font = this.Win
+            if (data[i].winNumber >= 0) {
+                data[i].winNumber += ''
+                base.setFont(winNumberNode, this.win)
+            } else {
+                font = this.Less
+            }
+            base.setFont(winNumberNode, font)
             base.setLabelStr(nameNode, data[i].nickName)
             base.setLabelStr(winNumberNode, data[i].winNumber)
-            node.parent = this.allSttleNode;
+            node.parent = this.allSttleContentNode;
+            // this.onlyData(data[i])
         }
     },
     //获取结算的预制
@@ -362,9 +475,14 @@ cc.Class({
     },
     //轮到哪位玩家操作
     inTurn(playerId) {
+        for (let i = 0; i < tp.info.players.length; i++) {
+            let node = this.getUserByPlayerId(tp.info.players[i].playerId)
+            node.getComponent(cc.Component).updateCount(false)
+        }
+        let nowNode = this.getUserByPlayerId(playerId)
+        nowNode.getComponent(cc.Component).updateCount(true)
         if (tp.info.playerId == playerId) {
             this.changeButton(true, true, true)
-
         } else {
             this.changeButton(false, false, false)
         }
@@ -381,21 +499,36 @@ cc.Class({
         }
         return node
     },
+    //更新小的牌的奖
+    updateSmallBonus(data) {
+        let players = tp.info.players
+        for (let i = 0; i < players.length; i++) {
+            let node = this.getUserByPlayerId(players[i].playerId)
+            node.getComponent(cc.Component).removeUbpokers()
+        }
+        for (let i = 0; i < data.length; i++) {
+            let bonusPokers = data[i].bonusPokers
+            let playerId = data[i].playerId
+            for (let j = 0; j < bonusPokers.length; j++) {
+                let newPokeData = { idx: j, level: bonusPokers[j].level, type: bonusPokers[j].type, list: false };
+                let node = this.pokeNode(newPokeData);
+                let userInfoNode = this.getUserByPlayerId(playerId)
+                userInfoNode.getComponent(cc.Component).ubPokers(node)
+            }
+        }
+    },
     //更新其他玩家的信息
     updatePlay(data) {
         for (let i = 0; i < data.length; i++) {
+            this.scoreInfos[i].playerId = data[i].playerId
             let node = this.getUserByPlayerId(data[i].playerId)
-            let bonusPokers = data[i].bonusPokers
+            let arr = { pokers: data[i].bonusPokers, playerId: data[i].playerId }
             node.getComponent(cc.Component).updateData(41)
             node.getComponent(cc.Component).updateScore(0)
             node.getComponent(cc.Component).updatePrice(data[i].bonusNum)
-            this.updateBonusPokers(bonusPokers, data[i].playerId)
             //第一次显示牌
-            for (let j = 0; j < bonusPokers.length; j++) {
-                let newPokeData = { idx: j, level: bonusPokers[j].level, type: bonusPokers[j].type, list: false };
-                let nodePoke = this.pokeNode(newPokeData);
-                node.getComponent(cc.Component).setParent(nodePoke)
-            }
+
+            this.onlyData(arr)
         }
     },
     //更新自己的数据
@@ -493,7 +626,6 @@ cc.Class({
                 node = cc.instantiate(this.roomPrefab)
             }
             node.parent = this.getRoomIdNode
-            // console.log(data[i].roomId)
             node.getComponent(cc.Component).updateRoomId(data[i].roomId)
             node.getComponent(cc.Component).updatepeople(data[i].currentPeople)
         }
@@ -510,8 +642,7 @@ cc.Class({
     },
     //创建房间的ui
     setRoom() {
-        this.setRoomNode.getComponent(cc.Component).updateRoomId(tp.info.roomId);
-
+        this.setRoomNode.getComponent(cc.Component).updateRoomId(tp.roomId);
     },
     // 获取用户显示
     showInfo() {
@@ -542,6 +673,13 @@ cc.Class({
                     node.parent = this.userInfoNode;
                     node.setPosition(0, 0)
                     node.getComponent(cc.Component).init(data[i], i)
+                    node.getComponent(cc.Component).updateReady(data[i].ready)
+                }
+                if (data[i].ready && data[i].playerId == tp.info.playerId) {
+                    base.setActive(this.redyBtnNode, false)
+                }
+                if (data[i].ready == false && data[i].playerId == tp.info.playerId) {
+                    base.setActive(this.redyBtnNode, true)
                 }
             }
         } else {
@@ -614,6 +752,7 @@ cc.Class({
     },
     //绑定节点
     bindNode() {
+        this.exitNode = cc.find('Canvas/btn')
         this.userName = cc.find("Canvas/New Sprite/userRe/name")
         this.chooseRoomNode = cc.find("Canvas/chooseName/userName")
         this.mePriceNdoe = cc.find("Canvas/chooseName/mePrice");
@@ -636,7 +775,9 @@ cc.Class({
         this.againNode = cc.find("Canvas/again")
         //结算
         this.allSttleNode = cc.find("Canvas/allSttle")
+        this.allSttleContentNode = cc.find("Canvas/allSttle/content")
         this.redyBtnNode = cc.find("Canvas/redyBtn")
+        this.roomScoreNode = cc.find("Canvas/content/roomScore")
     },
     //绑定事件
     bindEvent() {
@@ -703,9 +844,19 @@ cc.Class({
     },
     //中间显示出的牌
     centerShowPoke(data) {
+        if (data.pokers && data.playerId) {
+            this.cancelShowPoke()
+            this.onlyData(data)
+        } else {
+            console.log("没数据")
+        }
+
+
+    },
+    onlyData(data) {
+        console.log("data", data)
         let playerId = data.playerId
-        this.cancelShowPoke()
-        if(data.pokers){
+        if (data.pokers) {
             for (let i = 0; i < data.pokers.length; i++) {
                 let newCarrData = {};
                 newCarrData.i = i;
@@ -724,8 +875,6 @@ cc.Class({
                 this.setParent(node, playerId)
             }
         }
-       
-
     },
     setParent(node, playerId) {
         let userInitNode = this.getUserByPlayerId(playerId)

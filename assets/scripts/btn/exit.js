@@ -12,23 +12,33 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-
+        
     },
 
     // LIFE-CYCLE CALLBACKS:
 
-    onLoad() {
-        this.bindEvent();
+    onLoad () {
+        this.bindEvent()
     },
-    bindEvent() {
-        this.node.on("touchend", function () {
-          console.log("我点击ready")
-          window.socket.send(JSON.stringify({
-            "eventCode": 113,
-        }));
+    bindEvent(){
+        let self=this;
+        this.node.on('touchend',function(){
+            self.clickEvent()
         })
     },
-    start() {
+    clickEvent(){
+        if(!tp.status){
+            window.socket.send(JSON.stringify({
+                "eventCode": 106,
+                "roomId":1
+            }));
+        }else{
+            console.log("您还在游戏中")
+        }
+      
+    },
+
+    start () {
 
     },
 

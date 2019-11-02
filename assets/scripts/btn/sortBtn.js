@@ -23,9 +23,12 @@ cc.Class({
     },
     clickEvent() {
         this.sortBtnNode.on("sortBtn", function () {
-            window.socket.send(JSON.stringify({
-                "eventCode": 110,
-            }));
+            if(tp.status){
+                window.socket.send(JSON.stringify({
+                    "eventCode": 110,
+                }));
+            }
+            
         })
     }
 
