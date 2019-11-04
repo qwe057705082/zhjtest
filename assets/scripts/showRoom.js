@@ -9,6 +9,7 @@ cc.Class({
 
             },
             set: function (value) {
+                console.log("this.roomIdNode",this.roomIdNode,value)
                 base.setLabelStr(this.roomIdNode, "房间:" + value)
             },
         },

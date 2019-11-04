@@ -1,5 +1,4 @@
-let base = new (require('../../resource/base/base'))();
-
+let base = new (require('../resource/base/base'))();
 
 cc.Class({
     extends: cc.Component,
@@ -10,21 +9,13 @@ cc.Class({
 
             },
             set: function (value) {
-                base.setLabelStr(this.roomIdNode, "创建房间:" + value)
+                base.setLabelStr(this.roomIdNode, "创建房间:"+value)
             },
         },
     },
-    onLoad() {
-        this.bindNode()
-        this.bindEvent();
-    },
-    bindEvent() {
-        let self = this;
-        this.node.on("touchend", function () {
-            self.clickEvent()
-        })
-    },
+
     clickEvent() {
+        console.log("创建房间号")
         window.socket.send(JSON.stringify({
             "eventCode": 108,
         }));
@@ -35,4 +26,9 @@ cc.Class({
     bindNode() {
         this.roomIdNode = cc.find('roomId', this.node)
     },
+    start() {
+        this.bindNode()
+    },
+
+    // update (dt) {},
 });

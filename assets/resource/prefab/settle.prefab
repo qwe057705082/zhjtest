@@ -101,8 +101,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 50
+      "width": 200,
+      "height": 40
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -146,15 +146,15 @@
     "_useOriginalSize": true,
     "_string": "名字：小王",
     "_N$string": "名字：小王",
-    "_fontSize": 50,
-    "_lineHeight": 50,
+    "_fontSize": 40,
+    "_lineHeight": 40,
     "_enableWrapText": true,
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_batchAsBitmap": false,
-    "_N$horizontalAlign": 1,
-    "_N$verticalAlign": 1,
+    "_N$horizontalAlign": 0,
+    "_N$verticalAlign": 0,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
     "_N$cacheMode": 0,
@@ -199,8 +199,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 42.5,
-      "height": 50
+      "width": 91.11,
+      "height": 40
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -210,7 +210,7 @@
     "_position": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -113,
+      "y": -72,
       "z": 0
     },
     "_scale": {
@@ -242,19 +242,17 @@
     },
     "_enabled": true,
     "_useOriginalSize": true,
-    "_string": "-1",
-    "_N$string": "-1",
+    "_string": "输赢:",
+    "_N$string": "输赢:",
     "_fontSize": 40,
     "_lineHeight": 40,
     "_enableWrapText": true,
-    "_N$file": {
-      "__uuid__": "c3296fe6-b1f9-4d76-8722-a883717bcad9"
-    },
-    "_isSystemFontUsed": false,
+    "_N$file": null,
+    "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_batchAsBitmap": false,
-    "_N$horizontalAlign": 1,
-    "_N$verticalAlign": 1,
+    "_N$horizontalAlign": 0,
+    "_N$verticalAlign": 0,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
     "_N$cacheMode": 0,
